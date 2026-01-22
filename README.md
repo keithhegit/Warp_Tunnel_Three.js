@@ -1,11 +1,71 @@
-<div align="center">
+# Interstellar Warp Tunnel (星际穿越传送门)
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+这是一个受《星际穿越》和《2001太空漫游》启发的、基于 React 和 Three.js 构建的高性能 3D 空间曲率（Warp Drive）视觉特效项目。
 
-  <h1>Built with AI Studio</h2>
+## 🌌 项目简介
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+该项目模拟了飞船进入超空间（Hyperspace）时的视觉体验。通过动态生成的粒子线段、视角拉伸（FOV Stretch）以及随速度变化的颜色偏移，创造出极具冲击力的沉浸式星际旅行效果。
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+### 核心技术栈
+- **React 19**: 构建 UI 逻辑与状态管理。
+- **Three.js**: 负责高性能 3D 渲染，包括粒子系统和动态几何体。
+- **Tailwind CSS**: 响应式布局与极简主义控制界面。
+- **ES Modules**: 直接从 ESM.sh 导入依赖，无需复杂构建流程。
 
-</div>
+---
+
+## 🚀 使用指南
+
+### 1. 基础启动
+打开应用后，飞船默认处于 **亚光速推进（Sub-Light Propulsion）** 模式，初始化速度为 **20%**。
+
+### 2. 交互方式
+- **手动调速**: 使用界面中心的 `+` 和 `-` 按钮。
+    - 每次点击增加或减少 **10%** 的输出功率。
+    - 调速范围：**20% - 200%**。
+- **一键跳跃 (Engage Hyperdrive)**: 点击底部的启动按钮。
+    - 系统会自动将速度重置为 20%，并开始为期 **6秒** 的线性加速。
+    - 加速至 **200%** 时，飞船将进入奇点状态，屏幕完全转为纯白。
+
+---
+
+## 🛠️ 代码配置与按钮映射
+
+项目逻辑主要分布在 `App.tsx`（控制逻辑）和 `WarpTunnel.tsx`（渲染引擎）中。
+
+### 按钮与状态映射表
+
+| UI 元素 | 代码映射 (App.tsx) | 行为描述 |
+| :--- | :--- | :--- |
+| **`-` 按钮** | `adjustSpeed(-0.1)` | 将 `speed` 状态降低 0.1。 |
+| **`+` 按钮** | `adjustSpeed(0.1)` | 将 `speed` 状态提高 0.1。 |
+| **`Engage Hyperdrive`** | `startHyperdrive()` | 设置 `speed = 0.2` 并激活 `isAutoAccelerating` 标志。 |
+| **速度显示** | `{(speed * 100).toFixed(0)}%` | 将 0.2-2.0 的浮点数映射为 20%-200% 的百分比显示。 |
+
+### 核心参数配置 (`constants.ts`)
+
+- `LINE_COUNT`: 粒子线段的总数（默认 4000）。
+- `INITIAL_SPEED`: 基础运动速度系数。
+- `TUNNEL_RADIUS`: 隧道半径。
+- `COLORS`: 低速状态下的颜色调色板。
+
+### 视觉反馈逻辑
+
+1.  **颜色偏移 (`WarpTunnel.tsx`)**:
+    - 代码中使用 `colorMix` 变量：`clamp((speedMultiplier - 0.2) / 1.8, 0, 1)`。
+    - 速度从 20% 提升至 200% 过程中，颜色会从红色/紫色系线性过渡到霓虹青/亮蓝色系。
+2.  **视角抖动与拉伸 (`App.tsx` & `WarpTunnel.tsx`)**:
+    - 当速度 > 140% 时，容器会进行 `scale` 缩放模拟视觉拉伸。
+    - 当速度 > 120% 时，Three.js 摄像机会根据速度强度产生随机震动（Shake Effect）。
+3.  **白屏闪光 (`flashOpacity`)**:
+    - 逻辑：`(speed - 1.0) / 1.0`。
+    - 当速度超过 100% 后，白色遮罩层透明度开始增加，在 200% 时达到完全不透明（1.0）。
+
+---
+
+## 🖥️ 性能优化
+项目采用了以下优化手段：
+- **BufferGeometry**: 使用原生缓冲区几何体减少内存占用。
+- **Float32Array**: 在动画循环中直接修改二进制数组以提高帧率。
+- **FogExp2**: 指数雾效处理，确保远端粒子平滑消失。
+- **AdditiveBlending**: 使用加法混合模式模拟高能发光效果。

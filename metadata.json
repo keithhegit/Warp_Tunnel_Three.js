@@ -1,0 +1,5 @@
+{
+  "name": "Interstellar Warp Tunnel",
+  "description": "A high-performance 3D space warp effect inspired by Interstellar and 2001: A Space Odyssey, built with React and Three.js.",
+  "requestFramePermissions": []
+}
